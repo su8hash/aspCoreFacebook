@@ -1,4 +1,6 @@
-﻿using Microsoft.AspNetCore.Builder;
+﻿using System.Threading.Tasks;
+using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
@@ -9,36 +11,39 @@ using WebApplication3.Controller;
 
 namespace WebApplication3
 {
+    public class ShouldBeFacebooked : AuthorizeAttribute
+    {
+        public override bool IsDefaultAttribute()
+        {
+            return true;
+        }
+
+        public override bool Match(object obj)
+        {
+            return false;
+        }
+    }
+       
+    
+
     public class Startup
     {
-        // This method gets called by the runtime. Use this method to add services to the container.
-        // For more information on how to configure your application, visit https://go.microsoft.com/fwlink/?LinkID=398940
-
-        public Startup(IConfiguration configuration)
-        {
-            Configuration = configuration;
-        }
-        public IConfiguration Configuration { get; }
-
-
-        public void ConfigureServices(IServiceCollection services)
-        {
-
-            services.AddDbContext<ApplicationDbContext>(options =>
-                 options.UseSqlServer(Configuration.GetConnectionString("DefaultConnection")));
-
-            services.AddIdentity<ApplicationUser, IdentityRole>()
-                .AddEntityFrameworkStores<ApplicationDbContext>()
-                .AddDefaultTokenProviders();
-
+      public void ConfigureServices(IServiceCollection services)
+       {
             services.AddAuthentication().AddFacebook(facebookOption =>
             {
                 facebookOption.AppId = "276094155791124";
                 facebookOption.AppSecret = "870c801b79236a0962cbd2c28ab9912b";
             });
 
-            services.AddMvc();
+        ////services.AddAuthorization(options =>
+        ////{
+        ////    options.AddPolicy("ShouldBeFacebooked",
+        ////        policy => policy.Requirements.Add(new ShouldBeFacebooked()));
+        ////});
 
+
+        services.AddMvc();
         }
 
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.
